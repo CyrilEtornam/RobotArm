@@ -1,1 +1,28 @@
-*.idea
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+env/
+
+# IDE settings (PyCharm)
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temp files
+*.log
+*.tmp
+
+# Test and coverage outputs
+htmlcov/
+.coverage
+*.covergit
+*.pyc
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
