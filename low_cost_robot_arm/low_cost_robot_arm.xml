@@ -86,6 +86,7 @@
               <geom mesh="elbow_to_wrist_motor" class="visual" material="black"/>
               <geom mesh="elbow_to_wrist_collision" class="collision"/>
               <body name="gripper_static_finger" pos="-0.045 0.013097 0">
+                <site name="gripper_tip" pos="-0.07 0 0" size="0.005" rgba="1 0 0 1" type="sphere"/>
                 <inertial pos="-0.019091 0.0053379 0.00018011" quat="0.105295 0.703509 -0.0986543 0.695885"
                   mass="0.029277" diaginertia="8.11303e-06 7.14908e-06 3.27429e-06"/>
                 <joint name="wrist_roll" pos="0 0 0" axis="1 0 0" range="-3.14 3.14"/>
