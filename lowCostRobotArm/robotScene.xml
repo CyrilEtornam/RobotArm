@@ -1,4 +1,4 @@
-<mujoco model="low_cost_robot_scene">
+<mujoco model="low_cost_robotScene">
   <include file="low_cost_robot_arm.xml"/>
 
   <statistic center="0 0 0.1" extent="0.6"/>

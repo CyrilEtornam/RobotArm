@@ -1,6 +1,6 @@
 from envs.robot_arm_env import RobotArmEnv
 
-env = RobotArmEnv("low_cost_robot_arm/robot_scene.xml")
+env = RobotArmEnv("lowCostRobotArm/robotScene.xml")
 
 obs, info = env.reset()
 done = False

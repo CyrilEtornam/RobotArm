@@ -1,7 +1,7 @@
 import os
 import torch
 import numpy as np
-from gym import wrappers as gym_wrappers  # Gymnasium re-exports as gym.wrappers
+from gymnasium.wrappers import TimeLimit  # Updated: use gymnasium instead of gym
 from stable_baselines3 import PPO
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.callbacks import EvalCallback, CheckpointCallback
@@ -22,9 +22,9 @@ EP_LEN = 200         # max steps per episode
 
 def make_env(render_mode=None):
     def _init():
-        env = RobotArmEnv(xml_path="scene.xml")
-        # TimeLimit to define episodes
-        env = gym_wrappers.TimeLimit(env, max_episode_steps=EP_LEN)
+        env = RobotArmEnv(xml_path=r"C:\Users\Cyril\PycharmProjects\RobotArm\lowCostRobotArm\robotScene.xml")
+        # TimeLimit to define episodes - now using gymnasium.wrappers.TimeLimit
+        env = TimeLimit(env, max_episode_steps=EP_LEN)
         # Monitor to record ep_rew_mean, ep_len, etc.
         env = Monitor(env, filename=os.path.join(LOG_DIR, "monitor.csv"), allow_early_resets=True)
         return env
@@ -44,7 +44,7 @@ if __name__ == "__main__":
         "MlpPolicy",
         env,
         verbose=1,
-        tensorboard_log=LOG_DIR,
+        tensorboard_log=None,  # Disable tensorboard logging to avoid tensorboard dependency issues
         seed=SEED,
         learning_rate=3e-4,
         n_steps=2048,          # collect per update
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     eval_cb = EvalCallback(
         eval_env,
         best_model_save_path=MODEL_DIR,
-        log_pathp=EVAL_DIR,
+        log_path=EVAL_DIR,
         eval_freq=10_000,
         n_eval_episodes=5,
         deterministic=True,

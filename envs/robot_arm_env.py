@@ -9,7 +9,7 @@ from gymnasium import spaces
 class RobotArmEnv(gym.Env):
     metadata = {"render.modes": ["human"]}
 
-    def __init__(self, xml_path="low_cost_robot_arm/robot_scene.xml"):
+    def __init__(self, xml_path=r"C:\Users\Cyril\PycharmProjects\RobotArm\lowCostRobotArm\robotScene.xml"):
         super(RobotArmEnv, self).__init__()
 
         # Load model
@@ -62,7 +62,8 @@ class RobotArmEnv(gym.Env):
     def render(self, mode="human"):
         if self.viewer is None:
             self.viewer = mujoco.viewer.launch_passive(self.model, self.data)
-        # just keep viewer open
+        if self.viewer.is_running():
+            self.viewer.sync()
         return None
 
     def close(self):
