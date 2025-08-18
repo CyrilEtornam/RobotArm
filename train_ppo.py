@@ -17,7 +17,7 @@ os.makedirs(MODEL_DIR, exist_ok=True)
 os.makedirs(EVAL_DIR, exist_ok=True)
 
 SEED = 42
-TIMESTEPS = 300_000  # bump as needed
+TIMESTEPS = 700_000  # bump as needed
 EP_LEN = 200         # max steps per episode
 
 def make_env(render_mode=None):

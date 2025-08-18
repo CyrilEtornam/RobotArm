@@ -7,7 +7,7 @@ from stable_baselines3 import PPO
 from envs.robot_arm_env import RobotArmEnv
 
 MODEL_DIR = "models/ppo_robot_arm"
-MODEL_NAME = "best_model"  # or "ppo_robot_arm_final"
+MODEL_NAME = "best_model.zip"  # or "ppo_robot_arm_final"
 EP_LEN = 200  # Match training environment
 
 def run_episode(env, model, render=True):
