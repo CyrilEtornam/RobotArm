@@ -24,19 +24,17 @@
     <light pos="0 0 3" dir="0 0 -1" directional="false"/>
     <geom name="floor" size="0 0 0.05" type="plane" material="groundplane" pos="0 0 0" friction="0.1"/>
 
-    <!-- Cube to pick up -->
-    <body name="cube" pos="-0.2 -0.15 0.025">
-      <geom name="cube_geom" type="box" size="0.02 0.02 0.02" material="red" mass="0.05"/>
+    <!-- Cube to pick up - halved size and added site within the body -->
+    <body name="cube" pos="-0.2 -0.15 0.0125">
+      <geom name="cube_geom" type="box" size="0.01 0.01 0.01" material="red" mass="0.05"/>
+      <site name="cube_site" pos="0 0 0.01" size="0.01" rgba="1 0 0 0.3"/>
       <freejoint/>
     </body>
 
     <!-- Goal box (container) -->
     <body name="goal_box" pos="-0.1 0.2 0.0">
       <geom name="goal_box_geom" type="box" size="0.06 0.06 0.002" material="blue" contype="0" conaffinity="0"/>
+      <site name="goal_site" pos="0 0 0.05" size="0.01" rgba="0 0 1 0.3"/>
     </body>
-
-    <!-- Sites for reward shaping -->
-    <site name="cube_site" pos="-0.2 -0.15 0.05" size="0.01" rgba="1 0 0 0.3"/>
-    <site name="goal_site" pos="-0.1 0.2 0.05" size="0.01" rgba="0 0 1 0.3"/>
   </worldbody>
 </mujoco>
