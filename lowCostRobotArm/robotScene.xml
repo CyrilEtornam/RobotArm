@@ -26,7 +26,7 @@
 
     <!-- Cube to pick up - halved size and added site within the body -->
     <body name="cube" pos="-0.2 -0.15 0.0125">
-      <geom name="cube_geom" type="box" size="0.01 0.01 0.01" material="red" mass="0.05"/>
+      <geom name="cube_geom" type="box" size="0.01 0.01 0.01" material="red" mass="5"/>
       <site name="cube_site" pos="0 0 0.01" size="0.01" rgba="1 0 0 0.3"/>
       <freejoint/>
     </body>

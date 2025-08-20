@@ -7,7 +7,7 @@ from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.callbacks import EvalCallback, CheckpointCallback
 from stable_baselines3.common.vec_env import DummyVecEnv
 
-from envs.robot_arm_env import RobotArmEnv  # your env file
+from envs.robot_arm_env_enhanced import RobotArmEnv  # your env file
 
 LOG_DIR = "logs/ppo_robot_arm"
 MODEL_DIR = "models/ppo_robot_arm"
@@ -17,8 +17,8 @@ os.makedirs(MODEL_DIR, exist_ok=True)
 os.makedirs(EVAL_DIR, exist_ok=True)
 
 SEED = 42
-TIMESTEPS = 200_000  # bump as needed
-EP_LEN = 200         # max steps per episode
+TIMESTEPS = 100_000  # Increased from 200k to 1M for better learning
+EP_LEN = 1000         # Increased max steps per episode to match eval
 
 def make_env(render_mode=None):
     def _init():

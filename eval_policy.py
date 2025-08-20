@@ -7,13 +7,13 @@ from stable_baselines3 import PPO
 from envs.robot_arm_env import RobotArmEnv
 
 MODEL_DIR = "models/ppo_robot_arm"
-MODEL_NAME = "best_model.zip"  # or "ppo_robot_arm_final"
-EP_LEN = 200  # Match training environment
+MODEL_NAME = "best_model.zip"  # Using later checkpoint for better performance
+EP_LEN = 1000  # Increased episode length to give more time for task completion
 
 def run_episode(env, model, render=True):
     obs, info = env.reset()
     ep_rew = 0.0
-    for t in range(500):
+    for t in range(EP_LEN):
         action, _ = model.predict(obs, deterministic=True)
         obs, reward, terminated, truncated, info = env.step(action)
         ep_rew += reward

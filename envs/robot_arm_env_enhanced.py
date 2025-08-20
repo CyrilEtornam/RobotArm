@@ -21,7 +21,7 @@ class RobotArmEnv(gym.Env):
         self.viewer = None
 
         # ----- ACTION SPACE -----
-        # actions = 6 joint controls in range [-1, 1]
+        # actions = 6 joint controls + 1 gripper control in range [-1, 1]
         n_actuators = self.model.nu
         self.action_space = spaces.Box(
             low=-1.0, high=1.0, shape=(n_actuators,), dtype=np.float32
@@ -39,6 +39,12 @@ class RobotArmEnv(gym.Env):
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
         mujoco.mj_resetData(self.model, self.data)
+        
+        # Set initial gripper to open position
+        gripper_idx = self._get_gripper_actuator_idx()
+        if gripper_idx is not None:
+            self.data.ctrl[gripper_idx] = -1.0  # Open gripper
+        
         obs = self._get_obs()
         return obs, {}
 
@@ -54,8 +60,8 @@ class RobotArmEnv(gym.Env):
         reward = self._compute_reward()
         obs = self._get_obs()
 
-        terminated = False   # No hard terminal state yet
-        truncated = False    # Could add time-limit truncation
+        terminated = False
+        truncated = False
 
         return obs, reward, terminated, truncated, {}
 
@@ -84,6 +90,14 @@ class RobotArmEnv(gym.Env):
 
         return np.concatenate([gripper_pos, cube_pos, goal_pos, joint_pos, joint_vel])
 
+    def _get_gripper_actuator_idx(self):
+        """Get the index of the gripper actuator."""
+        for i in range(self.model.nu):  # Iterate over the number of actuators
+            name = self.model.actuator_acc0[i]  # Use actuator_acc0 or another appropriate attribute
+            if 'gripper' in str(name).lower():
+                return i
+        return None
+
     def _compute_reward(self):
         gripper_pos = self.data.site("gripper_tip").xpos
         cube_pos = self.data.body("cube").xpos
@@ -92,52 +106,71 @@ class RobotArmEnv(gym.Env):
         dist_gripper_cube = np.linalg.norm(gripper_pos - cube_pos)
         dist_cube_goal = np.linalg.norm(cube_pos - goal_pos)
 
-        # Simplified base reward focusing on gripper-to-cube distance
+        # Base reward for gripper positioning
         reward = -1.0 * dist_gripper_cube
 
-        # Height alignment reward (want gripper above cube)
-        height_diff = gripper_pos[2] - (cube_pos[2] + 0.015)  # Slightly reduced offset
-        if 0 < height_diff < 0.03:  # More precise height range
-            reward += 2.0
-
-        # Grasp reward with more precise positioning
-        if self.is_in_grasp_position():
+        # Enhanced grasping rewards
+        if self.is_cube_in_grasp_range():
+            # Strong reward for being in grasp position
             reward += 5.0
+            
+            # Additional reward for gripper closing when in position
+            gripper_idx = self._get_gripper_actuator_idx()
+            if gripper_idx is not None:
+                gripper_action = self.data.ctrl[gripper_idx]
+                gripper_range = self.model.actuator_ctrlrange[gripper_idx]
+                normalized_gripper = (gripper_action - gripper_range[0]) / (gripper_range[1] - gripper_range[0])
+                
+                # Reward for closing gripper (positive values = closing)
+                if normalized_gripper > 0.5:
+                    reward += 10.0 * normalized_gripper
 
-        # Successful grasp reward
+        # Grasp success rewards
         if self.is_cube_grasped():
-            reward += 10.0
-            # Add goal-based reward only when cube is grasped
+            reward += 20.0
+            # Additional reward for maintaining grasp
             reward -= dist_cube_goal * 2.0
 
-        # Achievement rewards
-        if dist_cube_goal < 0.1:  # Larger threshold for being close
-            reward += 10.0
-        if dist_cube_goal < 0.05:  # Additional reward for very close
-            reward += 20.0
+        # Goal achievement rewards
+        if dist_cube_goal < 0.1:
+            reward += 15.0
+        if dist_cube_goal < 0.05:
+            reward += 30.0
 
         return reward
 
-    def is_in_grasp_position(self, position_threshold=0.03, height_threshold=0.02):
-        """Check if gripper is in a good position to grasp."""
+    def is_cube_in_grasp_range(self, position_threshold=0.025, height_threshold=0.015):
+        """Check if cube is in optimal grasping position."""
         gripper_pos = self.data.site("gripper_tip").xpos
         cube_pos = self.data.body("cube").xpos
 
-        # Check horizontal distance (xy-plane)
+        # Check horizontal distance
         horizontal_dist = np.linalg.norm(gripper_pos[:2] - cube_pos[:2])
+        
+        # Check height alignment
+        height_diff = gripper_pos[2] - cube_pos[2]
+        
+        return horizontal_dist < position_threshold and abs(height_diff) < height_threshold
 
-        # Check if gripper is slightly above the cube
-        height_diff = gripper_pos[2] - (cube_pos[2] + 0.015)  # Reduced offset
-
-        return horizontal_dist < position_threshold and 0 < height_diff < height_threshold
-
-    def is_cube_grasped(self, threshold=0.025):  # Slightly reduced threshold for more precise grasping
-        """Check if cube is between gripper fingers (simple distance check)."""
+    def is_cube_grasped(self, threshold=0.02):
+        """Enhanced grasp detection considering gripper state."""
         gripper_pos = self.data.site("gripper_tip").xpos
         cube_pos = self.data.body("cube").xpos
-
-        # Check both distance and height relationship
+        
+        # Distance check
         dist = np.linalg.norm(gripper_pos - cube_pos)
+        
+        # Height check
         height_diff = abs(gripper_pos[2] - cube_pos[2])
-
-        return dist < threshold and height_diff < 0.02  # Added height check
+        
+        # Gripper state check
+        gripper_idx = self._get_gripper_actuator_idx()
+        if gripper_idx is not None:
+            gripper_action = self.data.ctrl[gripper_idx]
+            gripper_range = self.model.actuator_ctrlrange[gripper_idx]
+            normalized_gripper = (gripper_action - gripper_range[0]) / (gripper_range[1] - gripper_range[0])
+            
+            # Consider grasped if close and gripper is closing
+            return dist < threshold and height_diff < 0.015 and normalized_gripper > 0.3
+        
+        return dist < threshold and height_diff < 0.015
