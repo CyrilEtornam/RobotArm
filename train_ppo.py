@@ -17,8 +17,8 @@ os.makedirs(MODEL_DIR, exist_ok=True)
 os.makedirs(EVAL_DIR, exist_ok=True)
 
 SEED = 42
-TIMESTEPS = 100_000  # Increased from 200k to 1M for better learning
-EP_LEN = 1000         # Increased max steps per episode to match eval
+TIMESTEPS = 2_000_000  # Increased from 200k to 1M for better learning
+EP_LEN = 5000         # Increased max steps per episode to match eval
 
 def make_env(render_mode=None):
     def _init():

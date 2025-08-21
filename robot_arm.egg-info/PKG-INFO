@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: robot-arm
+Version: 0.1.0
+Requires-Python: >=3.8
+Requires-Dist: numpy>=1.20.0
+Requires-Dist: torch>=2.0.0
+Requires-Dist: gymnasium>=0.29.1
+Requires-Dist: stable-baselines3>=2.0.0
+Requires-Dist: mujoco>=3.0.0
+Requires-Dist: tensorboard>=2.13.0
+Dynamic: requires-dist
+Dynamic: requires-python

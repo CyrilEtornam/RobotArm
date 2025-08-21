@@ -7,8 +7,8 @@ from stable_baselines3 import PPO
 from envs.robot_arm_env import RobotArmEnv
 
 MODEL_DIR = "models/ppo_robot_arm"
-MODEL_NAME = "best_model.zip"  # Using later checkpoint for better performance
-EP_LEN = 1000  # Increased episode length to give more time for task completion
+MODEL_NAME = "best_model_colab2.zip"  # Using later checkpoint for better performance
+EP_LEN = 5000  # Increased episode length to give more time for task completion
 
 def run_episode(env, model, render=True):
     obs, info = env.reset()
@@ -20,7 +20,7 @@ def run_episode(env, model, render=True):
         if render:
             env.render()
             # throttle a bit so the viewer can keep up
-            time.sleep(0.02)  # Increased sleep time for better visualization
+            time.sleep(0.01)  # Increased sleep time for better visualization
         if terminated or truncated:
             break
     return ep_rew
