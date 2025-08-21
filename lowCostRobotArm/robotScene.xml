@@ -15,26 +15,75 @@
       markrgb="0.8 0.8 0.8" width="300" height="300"/>
     <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/>
 
-    <!-- Materials for objects -->
+    <!-- Enhanced materials for better visual feedback -->
     <material name="red" rgba="0.8 0.1 0.1 1"/>
     <material name="blue" rgba="0.1 0.1 0.8 1"/>
+    <material name="green" rgba="0.1 0.8 0.1 1"/>
+    <material name="transparent_red" rgba="0.8 0.1 0.1 0.5"/>
+    <material name="transparent_blue" rgba="0.1 0.1 0.8 0.5"/>
   </asset>
 
   <worldbody>
     <light pos="0 0 3" dir="0 0 -1" directional="false"/>
-    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane" pos="0 0 0" friction="0.1"/>
+    <!-- Additional lighting for better visibility -->
+    <light pos="0.3 0.3 1" dir="-1 -1 -1" directional="false" diffuse="0.3 0.3 0.3"/>
+    
+    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane" pos="0 0 0" friction="0.8"/>
 
-    <!-- Cube to pick up - halved size and added site within the body -->
-    <body name="cube" pos="-0.2 -0.15 0.0125">
-      <geom name="cube_geom" type="box" size="0.01 0.01 0.01" material="red" mass="5"/>
-      <site name="cube_site" pos="0 0 0.01" size="0.01" rgba="1 0 0 0.3"/>
+    <!-- Enhanced cube with better physics and visual markers -->
+    <body name="cube" pos="-0.2 -0.15 0.025">
+      <!-- Optimized cube size and mass for better grasping -->
+      <geom name="cube_geom" type="box" size="0.02 0.02 0.02" material="red" 
+            mass="0.15" friction="1.2 0.1 0.001" solref="0.01 1" solimp="0.9 0.99 0.001"/>
+      <!-- Enhanced site markers for precise grasp detection -->
+      <site name="cube_center" pos="0 0 0" size="0.005" rgba="1 1 0 0.8"/>
+      <site name="cube_top" pos="0 0 0.02" size="0.005" rgba="1 0 0 0.5"/>
+      <site name="cube_front" pos="0.02 0 0" size="0.005" rgba="0 1 0 0.5"/>
+      <site name="cube_back" pos="-0.02 0 0" size="0.005" rgba="0 1 0 0.5"/>
+      <site name="cube_left" pos="0 -0.02 0" size="0.005" rgba="0 0 1 0.5"/>
+      <site name="cube_right" pos="0 0.02 0" size="0.005" rgba="0 0 1 0.5"/>
+      <!-- Grasp detection zones -->
+      <site name="grasp_zone_1" pos="0.015 0 0.01" size="0.008" rgba="1 0 1 0.3"/>
+      <site name="grasp_zone_2" pos="-0.015 0 0.01" size="0.008" rgba="1 0 1 0.3"/>
       <freejoint/>
     </body>
 
-    <!-- Goal box (container) -->
+    <!-- Enhanced goal box with better visual feedback -->
     <body name="goal_box" pos="-0.1 0.2 0.0">
-      <geom name="goal_box_geom" type="box" size="0.06 0.06 0.002" material="blue" contype="0" conaffinity="0"/>
-      <site name="goal_site" pos="0 0 0.05" size="0.01" rgba="0 0 1 0.3"/>
+      <!-- Raised walls to contain the cube better -->
+      <geom name="goal_bottom" type="box" size="0.08 0.08 0.002" material="blue" pos="0 0 0.002"/>
+      <geom name="goal_wall_1" type="box" size="0.002 0.08 0.02" material="transparent_blue" pos="0.078 0 0.02"/>
+      <geom name="goal_wall_2" type="box" size="0.002 0.08 0.02" material="transparent_blue" pos="-0.078 0 0.02"/>
+      <geom name="goal_wall_3" type="box" size="0.08 0.002 0.02" material="transparent_blue" pos="0 0.078 0.02"/>
+      <geom name="goal_wall_4" type="box" size="0.08 0.002 0.02" material="transparent_blue" pos="0 -0.078 0.02"/>
+      
+      <!-- Goal detection sites at different heights -->
+      <site name="goal_center" pos="0 0 0.02" size="0.01" rgba="0 0 1 0.3"/>
+      <site name="goal_surface" pos="0 0 0.004" size="0.06" rgba="0 1 1 0.2"/>
+      <!-- Backward compatibility site -->
+      <site name="goal_site" pos="0 0 0.02" size="0.01" rgba="0 0 1 0.1"/>
     </body>
+
+    <!-- Additional training aids -->
+    <!-- Workspace boundary markers -->
+    <geom name="workspace_boundary" type="cylinder" size="0.4 0.001" pos="0 0 0.05" 
+          material="transparent_red" contype="0" conaffinity="0"/>
+    
+    <!-- Reference markers for distance calculation -->
+    <site name="robot_base" pos="0 0 0" size="0.01" rgba="0.5 0.5 0.5 0.5"/>
+    <site name="midpoint_marker" pos="-0.15 0.025 0.1" size="0.005" rgba="1 1 0 0.3"/>
+    
+    <!-- Optional: Distractor objects for more complex training -->
+    <!--
+    <body name="distractor1" pos="0.15 -0.1 0.025">
+      <geom name="distractor1_geom" type="box" size="0.01 0.01 0.01" material="green" mass="0.05"/>
+      <freejoint/>
+    </body>
+    -->
   </worldbody>
+
+  <!-- Enhanced contact parameters for better grip simulation -->
+  <contact>
+    <pair geom1="cube_geom" geom2="goal_bottom" friction="0.8 0.1 0.001" solref="0.01 1" solimp="0.9 0.95 0.001"/>
+  </contact>
 </mujoco>
